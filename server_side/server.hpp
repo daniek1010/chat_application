@@ -7,15 +7,14 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include "../network_entity/networkEntity.hpp"
 
 class server {
 	public:
 		server (void){};
-		void _socket();
-		void _bind();
-		int _listen();
-		int _accpet();
+		void _creatingServerSocketFd();
+		int _serverReservePortandIpBind();
+		int _serverListens();
+		int _serverAccpetIncoming();
 		// int _connect();
 		// int _closeFd();
 
