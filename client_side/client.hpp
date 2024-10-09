@@ -14,7 +14,7 @@ class Client {
 		int _creatingClientSocketFd();
 		int _creatingClientConnection();
 		void _clientSendingMesssage(std::string message);
-		const std::string _recieve();
+		void _recieve();
 		int get_clientSocketFd(void) const;
 		~Client();
 	private:
