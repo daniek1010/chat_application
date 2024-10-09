@@ -7,19 +7,24 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include "./network_entity/networkEntity.hpp"
+#include "../network_entity/networkEntity.hpp"
 
-class Client {
+class server {
 	public:
-		Client (void){};
-		int _socket();
-		int _connect();
-		void _send(std::string message);
-		const std::string _recieve();
+		server (void){};
+		void _socket();
+		void _bind();
+		int _listen();
+		int _accpet();
+		// int _connect();
+		// int _closeFd();
+
+		// void _send(std::string message);
+		const std::string _recieve(int clientSocketFd);
 		int getter_socket_fd(void) const;
-		~Client();
+		~server();
 	private:
-		int socketFD;
+		int serverSocketFD;
 };
 
 #endif

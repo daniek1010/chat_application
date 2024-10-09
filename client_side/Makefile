@@ -1,7 +1,7 @@
-NAME = chat_app
+NAME = client
 CC = g++
-CFLAGS = -Wall -Werror -Wextra -I./client_side/
-SRC = ./client_side/client.cpp main.cpp
+CFLAGS = -Wall -Werror -Wextra -I./client_side/ -I./network_entity
+SRC = client.cpp main.cpp
 OBJ = $(SRC:.cpp=.o)
 
 all: $(NAME)

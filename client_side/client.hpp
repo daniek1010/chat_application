@@ -7,11 +7,11 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include "./network_entity/networkEntity.hpp"
+#include "../network_entity/networkEntity.hpp"
 
 class Client : public NetworkEntity {
 	public:
-		Client (void){};
+		Client (void);
 		int _socket();
 		int _connect();
 		void _send(std::string message);

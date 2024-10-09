@@ -1,4 +1,4 @@
-#include "./client_side/client.hpp"
+#include "client.hpp"
 
 int main (){
 	Client _client;
@@ -10,7 +10,12 @@ int main (){
 		}
 		else
 			std::cout << "connection failed" << std::endl;
+		while(1) {
+		std::string input;
+		std::cin >> input;
+		_client._send(input);
+		}
 	}
 	else
-		std::cout << "sockedFd failed" << _client.getter_socket_fd() << std::endl;
+		std::cout << "sockedFd here failed" << _client.getter_socket_fd() << std::endl;
 }

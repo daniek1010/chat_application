@@ -1,6 +1,5 @@
 #include "client.hpp"
 
-
 Client::Client() : NetworkEntity() {
 	std::cout << "default constructor called " << std::endl;
 }
@@ -16,14 +15,14 @@ int Client::_socket() {
 
 int Client::_connect(){
 	int connect_id;
-	const char *ip = "142.250.189.174";
+	const char *ip = "127.0.0.1";
 	struct sockaddr_in address;
 	address.sin_family = AF_INET;
-	address.sin_port = htons(80);
+	address.sin_port = htons(4242);
 	inet_pton(AF_INET, ip, &address.sin_addr);
 	connect_id = connect(socketFD, (const struct sockaddr *)&address, sizeof (address));
-	if (connect_id){
-		std::cout << "socket creation faliled" << std::endl;
+	if (connect_id < 0){
+		std::cout << "socket ??? creation faliled" << connect_id << std::endl;
 		return -1;
 	}
 	else
@@ -33,7 +32,7 @@ int Client::_connect(){
 }
 
 void Client::_send(std::string message){
-	send(socketFD, message.c_str(), sizeof(message), 0);
+    send(socketFD, message.c_str(), message.size(), 0);
 }
 
 const std::string Client::_recieve(){
