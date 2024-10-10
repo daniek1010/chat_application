@@ -12,7 +12,7 @@ class Client {
 	public:
 		Client (void);
 		int _creatingClientSocketFd();
-		int _creatingClientConnection();
+		int _creatingClientConnection(std::string buff_port, std::string client_name, std::string client_recieve);
 		void _clientSendingMesssage(std::string message);
 		void _recieve();
 		int get_clientSocketFd(void) const;

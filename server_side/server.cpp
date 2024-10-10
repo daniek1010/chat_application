@@ -9,11 +9,12 @@ int server::_creatingServerSocketFd(){
 	return (0);
 }
 
-int server::_serverReservePortandIpBind(){
+int server::_serverReservePortandIpBind(std::string buff_port){
 	std::string ip = "127.0.0.1";
+	int port = std::atoi(buff_port.c_str());
 	struct sockaddr_in address;
 	address.sin_family = AF_INET;
-	address.sin_port = htons(4100);
+	address.sin_port = htons(port);
 	inet_pton(AF_INET, ip.c_str(), &address.sin_addr);
 	if (bind(serverSocketFD, (const struct sockaddr *)&address, sizeof(address)) < 0){
 		return (std::cout << "binding faliled\n" << std::endl, 1);
@@ -30,7 +31,7 @@ int server::_serverListens() {
 	return (0);
 }
 
-int server::_serverAccpetIncoming(){
+server::clientDetails server::_serverAcceptIncoming(){
 	int	clientSocketFD;
 	socklen_t clientAddrLen;
 	struct sockaddr_in clientAddr;
@@ -38,14 +39,23 @@ int server::_serverAccpetIncoming(){
 	clientSocketFD = accept(serverSocketFD, (struct sockaddr *) &clientAddr, &clientAddrLen);
 	if (clientSocketFD  < 0) {
 		std::cout << "accept faliled\n" << std::endl;
-		return (1);
+		clientDetails empty;
+		empty.clientfd = -1;
+		return empty;
 	}
-	return (clientSocketFD);
+
+	std::string name = _recieve(clientSocketFD);
+	std::cout << "  connection established?? "  << name << "  after " << std::endl;
+	std::string other = _recieve(clientSocketFD);
+	std::cout << "  connection second established?? "  << other  << std::endl;
+	clientDetails newclient = {clientSocketFD, name, other};
+	std::cout << "  connection established  " << newclient.clientName  << std::endl;
+	return (newclient);
 }
 
-int server::run_server(void) {
+int server::run_server(std::string buff_port) {
 	epfd = epoll_create1(0);
-	if (_createBindListen() == 1)
+	if (_createBindListen(buff_port) == 1)
 		return (1);
 	server_event = initEpollEvant(EPOLLIN, serverSocketFD);
 	if (epoll_ctl(epfd, EPOLL_CTL_ADD, serverSocketFD, server_event) == -1)
@@ -56,26 +66,26 @@ int server::run_server(void) {
 			return (1);
 		for (int i = 0; i < epoll_waitfd; i++) {
 			if (server_event_gotten[i].data.fd == serverSocketFD) {
-				clientSocketFD = _serverAccpetIncoming();
-				if ( clientSocketFD == -1)
+				clientDetails newclient = _serverAcceptIncoming();
+				if (newclient.clientfd < 0)
 					return (1);
-				client_ArrayFd.push_back(clientSocketFD);
+				clients_info.push_back(newclient);
 				client_event = initEpollEvant(EPOLLIN, clientSocketFD);
 				if (epoll_ctl(epfd, EPOLL_CTL_ADD, clientSocketFD, client_event) == -1)
 					return (1);
 			}
 			else {
-				_receveAndSend(server_event_gotten[i].data.fd, epfd, client_ArrayFd);
+				_receveAndSend(server_event_gotten[i].data.fd, epfd, clients_info);
 			}
 		}
 	}
 	_closeFd();
 }
 
-int server::_createBindListen(){
+int server::_createBindListen(std::string buff_port){
 	if (_creatingServerSocketFd() == 1)
 		return (1);
-	if (_serverReservePortandIpBind() == 1)
+	if (_serverReservePortandIpBind(buff_port) == 1)
 		return (1);
 	if (_serverListens() == 1)
 		return (1);
@@ -91,20 +101,16 @@ int server::_createBindListen(){
 
 }
 
-void server::_receveAndSend(int sender, int epfd, std::vector <int> client_ArrayFd) {
-	server _server;
-	int clientSendMsg;
-	clientSendMsg = sender;
-	std::string buff = _server._recieve(clientSendMsg);
+void server::_receveAndSend(int sender, int epfd, std::vector <clientDetails> clients_info) {
+	std::string buff = _recieve(sender);
 	if (buff.empty()) {
-		epoll_ctl(epfd, EPOLL_CTL_DEL, clientSendMsg, NULL);
-		close(clientSendMsg);
+		epoll_ctl(epfd, EPOLL_CTL_DEL, sender, NULL);
+		close(sender);
     }
 	else {
-		for (int clientSocketFD : client_ArrayFd){
-			if (clientSocketFD != clientSendMsg)
-				_server._send(buff, clientSocketFD);
-
+		for (clientDetails clientSocketFD : clients_info){
+			if ((clientSocketFD.clientName == clientSocketFD.clientRecevingMsg) && (clientSocketFD.clientfd != sender))
+				_send(buff, clientSocketFD.clientfd);
 			}
 	}
 }

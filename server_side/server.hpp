@@ -10,23 +10,35 @@
 #include <sys/epoll.h>
 #include <unistd.h>
 #include <vector>
+#include <optional>
+#include <fcntl.h>
 
 
 class server {
 	public:
 		server (void){};
+
+		struct clientDetails {
+			int clientfd;
+			std::string clientName;
+			std::string clientRecevingMsg;
+		};
+		clientDetails data;
+		std::vector<clientDetails> clients_info;
+
 		int _creatingServerSocketFd();
-		int _serverReservePortandIpBind();
+		int _serverReservePortandIpBind(std::string buff_port);
 		int _serverListens();
-		int _serverAccpetIncoming();
-		int _serverThread ();
+		clientDetails _serverAcceptIncoming(); 
+		// std::optional<clientDetails> _serverAccpetIncoming();
+		// int _serverThread ();
 		void _closeFd();
 		epoll_event* initEpollEvant(int x, int socketFd);
-		int run_server(void);
-		int _createBindListen();
+		int run_server(std::string buff_port);
+		int _createBindListen(std::string buff_port);
 		void _send(const std::string &buff, int client_fd);
 		const std::string _recieve(int clientSocketFd);
-		void _receveAndSend(int sender, int epfd, std::vector <int> client_ArrayFd);
+		void _receveAndSend(int sender, int epfd, std::vector <clientDetails> clients_info);
 		int _getter_serverSocketFD(void) const;
 		~server();
 	private:

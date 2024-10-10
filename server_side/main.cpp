@@ -1,8 +1,10 @@
 #include "server.hpp"
 
-int main (){
+int main (int ac, char **argv){
+	if (ac != 2)
+		return 0;
 	server _server;
-	_server.run_server();
+	_server.run_server(argv[1]);
 
 
 	// _client._socket();

@@ -23,13 +23,14 @@
 #include <thread>
 
 // Inside your main function:
-int main() {
+int main(int ac , char **argv) {
+	if (ac != 4)
+		return 0;
     Client _client;
     _client._creatingClientSocketFd();
-    
     if (_client.get_clientSocketFd()) {
         std::cout << "client socketFD passed" << std::endl;
-        if (_client._creatingClientConnection() == 0) {
+        if (_client._creatingClientConnection(argv[3], argv[1], argv[2]) == 0) {
             std::cout << "client connection established" << std::endl;
 
             // Create a thread for receiving messages
@@ -39,7 +40,7 @@ int main() {
             while (1) {
                 std::string input;
                 std::getline(std::cin, input);
-                _client._clientSendingMesssage(input);
+               _client._clientSendingMesssage(input);
             }
         } else {
             std::cout << "client connection failed" << std::endl;
